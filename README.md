@@ -21,7 +21,7 @@ which means:
 customer who's id is 55, Deposit, at time 1587398219, a total of $100.00
 customer who's id is 55, Withdraw, at time 1587398301, a total of $25.00
 
-to create a new kafka topic
+to create a new kafka topic (the one you need for the phase1 scripts to work.)
 ```bash
 kafka-topics --create \
 --zookeeper localhost:2181 \
@@ -30,6 +30,12 @@ kafka-topics --create \
 --topic bank-customer-events
 ```
 
+### Your Phase1 Mession
+
+these scripts work. kinda. the problem is every time we re-start the consumer, we lose
+all the customer data.
+
+you
 and whose SQLAlchemy might be
 ``` python
 class Transaction(Base):
