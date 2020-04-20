@@ -33,10 +33,15 @@ kafka-topics --create \
 ### Your Phase1 Mession
 
 these scripts work. kinda. the problem is every time we re-start the consumer, we lose
-all the customer data.
+all the customer data. the reason is the coder doesn't know SQL like you do! so all the data gets
+put into in-memory data structures, but every time you restart the consumer script, they get emptied.
 
-you
-and whose SQLAlchemy might be
+you need to use SQL alchemy to add to the Consumer in phase1 what's needed to save that transaction information into a "transaction" table in the SQl of your choice.
+
+you probably need to create the "database" and the "table" within your Sql Database, and then
+connect to it anytime someone creates a XactionConsumer() object.
+
+and that SQLAlchemy  might be something like 
 ``` python
 class Transaction(Base):
     __tablename__ = 'transaction'
@@ -49,8 +54,10 @@ class Transaction(Base):
     amt = Column(Integer)
  ```
 
+ Read through the producer in phase1. See where it is generating random transaction sizes, and random on whether it's a deposit or withdrawal. (and random on what customer id is used for the transaction)
+
+
  ## Phase 2
      
 transaction consumers
     a user by user put into a db
-    a memory based ledger of bank's total deposits
