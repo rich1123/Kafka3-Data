@@ -80,7 +80,27 @@ class Transaction(Base):
 
 
  ## Phase 2
-     
-transaction consumer2: keep track of not only transactions in SQL, also grab and manage custids in a different customer table.
 
-I'll add more to phase2 in a day or so.
+Add different branches for the production of transactions.
+
+Each branch has a branch id, and a different partition in kafka. The consumers for each partition need to handle their branch's customer's transactions.
+
+The branches also create new customers. Every so often, a create-customer event happens, and the consumer hooked up to that stream has to create a new customer in the database before any transactions get posted to that customer's account.
+
+the topic is `bank-customer-new`
+the SQLalchemy might look like
+``` python
+class Customer(Base):
+    __tablename__ = 'transaction'
+    # Here we define columns for the table person
+    # Notice that each column is also a normal Python instance attribute.
+    custid = Column(Integer, primary_key=True)
+    createdate = Column(Integer)
+    fname = Column(String(250), nullable=False)
+    lname = Column(String(250), nullable=False)
+ ```
+a couple samples in python Dicts.
+```
+{ custid: 55, createdate: 1587398219, fname: 'Lisa' lname: 'Loopner' }
+{ custid: 56, createdate: 1587398301, fname: 'Todd' lname: 'Cushman' }
+```
