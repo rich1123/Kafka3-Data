@@ -3,16 +3,36 @@ build simple consumer (python)
 
 ## ZipBank Project
 
-### Phase 1
-build a consumer to use SQLalchemy to store incoming transactions into a SQL Database. 
-transaction producer
-    a simple user by user generates random deposits and withdrawals
+We have decided to use Kafka as our main event handling infrastructure for our new bank, ZipBank.
 
-a transaction 
+this lab requires you to have a running kafka/zookeeper pair on your machine.
+
+Kafka will take in transactions from various applications, and your job is to create the consumers needed to save all those transactions into a database.
+
+To help, we've proviced a test producer that creates random messages and send them into Kafka.
+
+(to do this lab, you will have needed to step through both of these to get kafka and zookeepder running.
+    - [Kafka on Mac1](https://yoda.zipcode.rocks/2020/04/20/kafka-on-mac/)
+    - [Kafka on Mac2](https://yoda.zipcode.rocks/2020/04/20/kafka-on-mac-2/)
+)
+
+### Phase 1
+
+build a kafka consumer in python to use SQLalchemy to store incoming transactions into a SQL Database. 
+you may use any SQL DB you're comfortable with. (Postgres, MySQL, RDS ... ?)
+
+We have supplied a simple generation producer that creates random banking transactions:
+`./Kafka3-Data/phase1/producer-random-xactions.py`
+It produces 20 transactions each time it is run, sending them to the `bank-customer-events` topic.
+(Down below, there is a shell line that can be used to create that topic within your running kafka.)
+transaction Producer
+    a simple user by user producer that generates random deposits and withdrawals on random accounts.
+
+a transaction looks like this in pseudocode:
 ```
 { custid: int, type: W/D, date: now, amt: int }
 ```
-so a sample
+so a couple samples in python Dicts.
 ```
 { custid: 55, type: "Dep", date: 1587398219, amt: 10000 }
 { custid: 55, type: "Wth", date: 1587398301, amt: 2500 }
@@ -21,7 +41,9 @@ which means:
 customer who's id is 55, Deposit, at time 1587398219, a total of $100.00
 customer who's id is 55, Withdraw, at time 1587398301, a total of $25.00
 
-to create a new kafka topic (the one you need for the phase1 scripts to work.)
+those dates are Unix Epoch second timestamps. [Unix Time](https://en.wikipedia.org/wiki/Unix_time)
+
+to create a new kafka topic (the one you need for the phase1 scripts to work. You only need to do this once.)
 ```bash
 kafka-topics --create \
 --zookeeper localhost:2181 \
@@ -30,16 +52,16 @@ kafka-topics --create \
 --topic bank-customer-events
 ```
 
-### Your Phase1 Mession
+### Your Phase1 Mission
 
 these scripts work. kinda. the problem is every time we re-start the consumer, we lose
 all the customer data. the reason is the coder doesn't know SQL like you do! so all the data gets
 put into in-memory data structures, but every time you restart the consumer script, they get emptied.
 
-you need to use SQL alchemy to add to the Consumer in phase1 what's needed to save that transaction information into a "transaction" table in the SQl of your choice.
+you need to use SQL alchemy to add to the Consumer in phase1 what's needed to save that transaction information into a "transaction" table in the SQL DB of your choice.
 
 you probably need to create the "database" and the "table" within your Sql Database, and then
-connect to it anytime someone creates a XactionConsumer() object.
+connect to it anytime someone creates a XactionConsumer() object. (so that modifying the __init__ method.)
 
 and that SQLAlchemy  might be something like 
 ``` python
@@ -59,5 +81,6 @@ class Transaction(Base):
 
  ## Phase 2
      
-transaction consumers
-    a user by user put into a db
+transaction consumer2: keep track of not only transactions in SQL, also grab and manage custids in a different customer table.
+
+
