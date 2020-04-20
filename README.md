@@ -83,4 +83,4 @@ class Transaction(Base):
      
 transaction consumer2: keep track of not only transactions in SQL, also grab and manage custids in a different customer table.
 
-
+I'll add more to phase2 in a day or so.
