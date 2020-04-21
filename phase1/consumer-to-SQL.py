@@ -1,5 +1,25 @@
+import sqlalchemy as sqlalchemy
 from kafka import KafkaConsumer, TopicPartition
 from json import loads
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+import psycopg2
+from sqlalchemy import Integer, String, Column, Sequence
+
+create_session = sessionmaker()
+Base = declarative_base()
+
+person_autoincr_seq = Sequence('person_autoincr_seq')
+
+class Transaction(Base):
+    __tablename__ = 'transaction'
+    # Here we define columns for the table person
+    # Notice that each column is also a normal Python instance attribute.
+    id = Column(Integer, primary_key=True)
+    custid = Column(Integer)
+    type = Column(String(250), nullable=False)
+    date = Column(Integer)
+    amt = Column(Integer)
 
 class XactionConsumer:
     def __init__(self):
@@ -16,6 +36,10 @@ class XactionConsumer:
         # THE PROBLEM is every time we re-run the Consumer, ALL our customer
         # data gets lost!
         # add a way to connect to your database here.
+        conn = sqlalchemy.create_engine('postgresql+psycopg2://rich:Coder20!@localhost:5432/kafka')
+        # df.to_sql(name="adp", con=conn, schema='fantasy_data', if_exists='replace')
+
+
 
         #Go back to the readme.
 
@@ -24,7 +48,7 @@ class XactionConsumer:
             message = message.value
             print('{} received'.format(message))
             self.ledger[message['custid']] = message
-            # add message to the transaction table in your SQL usinf SQLalchemy
+            # add message to the transaction table in your SQL using SQLalchemy
             if message['custid'] not in self.custBalances:
                 self.custBalances[message['custid']] = 0
             if message['type'] == 'dep':
