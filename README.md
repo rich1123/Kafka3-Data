@@ -52,7 +52,7 @@ kafka-topics --create \
 --topic bank-customer-events
 ```
 
-### Your Phase1 Mission
+### Your Phase 1 Mission
 
 these scripts work. kinda. the problem is every time we re-start the consumer, we lose
 all the customer data. the reason is the coder doesn't know SQL like you do! so all the data gets
@@ -79,7 +79,18 @@ class Transaction(Base):
  Read through the producer in phase1. See where it is generating random transaction sizes, and random on whether it's a deposit or withdrawal. (and random on what customer id is used for the transaction)
 
 
- ## Phase 2
+##Phase 2
+Build two "analytical" consumers. One, build a consumer that everytime it starts, produces an on-going statistical summary of all the transactions seen by the system. Two, build a "limit" watcher. This is a made-up idea, but the idea is watch for accounts that exceed a certain negative number, say -5000, and print an error message when that happens.
+
+Unless you need to, don't bother to store any of the output or state in the SQL DB, just keep it in memory.
+
+###SummaryConsumer
+SummaryConsumer should produce a list of outputs, the status of the mean (avg) deposits and mean withdrawals across all customers. You should also print the standard deviation of the distribution for both deposits and withdrawals. As each transaction comes in, print a new status of the numerical summaries.
+
+###LimitConsumer
+LimitConsumer should keep track of the customer ids that have current balances greater or equal to the limit supplied to the constructor. The intro suggests -5000 for eaxmple, but you should be able set that with a parameter to the class' Constructor
+
+##Phase 3
 
 Add different branches for the production of transactions.
 
@@ -87,9 +98,9 @@ Each branch has a branch id, and a different partition in kafka. The consumers f
 
 The branches also create new customers. Every so often, a create-customer event happens, and the consumer hooked up to that stream has to create a new customer in the database before any transactions get posted to that customer's account.
 
-the topic is `bank-customer-new`
-the SQLalchemy might look like
-``` python
+the topic is bank-customer-new the SQLalchemy might look like
+
+```
 class Customer(Base):
     __tablename__ = 'transaction'
     # Here we define columns for the table person
@@ -98,9 +109,7 @@ class Customer(Base):
     createdate = Column(Integer)
     fname = Column(String(250), nullable=False)
     lname = Column(String(250), nullable=False)
- ```
 a couple samples in python Dicts.
-```
+
 { custid: 55, createdate: 1587398219, fname: 'Lisa' lname: 'Loopner' }
 { custid: 56, createdate: 1587398301, fname: 'Todd' lname: 'Cushman' }
-```
