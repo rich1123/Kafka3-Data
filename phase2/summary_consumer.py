@@ -1,24 +1,26 @@
 from kafka import KafkaConsumer, TopicPartition
 from json import loads
 
+
 class XactionConsumer:
     def __init__(self):
         self.consumer = KafkaConsumer('bank-customer-events',
-            bootstrap_servers=['localhost:9092'],
-            # auto_offset_reset='earliest',
-            value_deserializer=lambda m: loads(m.decode('ascii')))
+                                      bootstrap_servers=['localhost:9092'],
+                                      # auto_offset_reset='earliest',
+                                      value_deserializer=lambda m: loads(m.decode('ascii')))
         ## These are two python dictionarys
         # Ledger is the one where all the transaction get posted
         self.ledger = {}
         # custBalances is the one where the current blance of each customer
         # account is kept.
         self.custBalances = {}
-        self.amt_total = []
+        self.amt = []
+        self.amt_total = sum(self.amt)
         # THE PROBLEM is every time we re-run the Consumer, ALL our customer
         # data gets lost!
         # add a way to connect to your database here.
 
-        #Go back to the readme.
+        # Go back to the readme.
 
     def handleMessages(self):
         for message in self.consumer:
@@ -30,23 +32,24 @@ class XactionConsumer:
                 self.custBalances[message['custid']] = 0
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
+            if message['type'] == 'wth' or 'dep':
+                self.amt.append(message['type'])
+                print(self.amt_total)
             else:
                 self.custBalances[message['custid']] -= message['amt']
             print(self.custBalances)
             # return message
             # for message in
 
-    def mean_amt(self):
-        for message in self.consumer:
-            message = message.value
-            if message['type'] == 'wth' or 'dep':
-                self.amt_total.append('amt')
-            print(self.amt_total)
-
-
+    # def mean_amt(self):
+    #     for message in self.consumer:
+    #         message = message.value
+    #         if message['type'] == 'wth' or 'dep':
+    #             self.amt_total.append(message['type'].value)
+    #         print(self.amt_total
 
 
 if __name__ == "__main__":
     c = XactionConsumer()
     c.handleMessages()
-    c.mean_amt()
+    # c.mean_amt()
