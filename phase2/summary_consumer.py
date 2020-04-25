@@ -16,6 +16,16 @@ class XactionConsumer:
         self.custBalances = {}
         self.amt = []
         self.amt_total = sum(self.amt)
+        self.wth_sum = 0
+        self.dep_sum = 0
+        self.dep_tot = []
+        self.wth_tot = []
+        self.dep_count = len(self.dep_tot)
+        self.wth_count = len(self.wth_tot)
+        dep_mean = self.dep_sum / self.dep_count 
+        wth_mean = self.wth_sum / self.wth_count
+
+
         # THE PROBLEM is every time we re-run the Consumer, ALL our customer
         # data gets lost!
         # add a way to connect to your database here.
@@ -23,6 +33,7 @@ class XactionConsumer:
         # Go back to the readme.
 
     def handleMessages(self):
+        global dep_count
         for message in self.consumer:
             message = message.value
             print('{} received'.format(message))
@@ -32,12 +43,15 @@ class XactionConsumer:
                 self.custBalances[message['custid']] = 0
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
-            if message['type'] == 'wth' or 'dep':
-                self.amt.append(message['type'])
-                print(self.amt_total)
+                self.dep_sum += message['amt']
+                self.dep_tot.append(message)
+                dep_mean = self.dep_sum/len(self.dep_tot)
             else:
                 self.custBalances[message['custid']] -= message['amt']
-            print(self.custBalances)
+                self.wth_sum += message['amt']
+                self.wth_tot.append(message)
+                wth_mean = self.wth_sum/len(self.wth_tot)
+            print(self.custBalances, self.dep_sum, self.wth_sum, dep_mean, wth_mean)
             # return message
             # for message in
 
