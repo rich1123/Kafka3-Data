@@ -18,12 +18,16 @@ class XactionConsumer:
         self.amt_total = sum(self.amt)
         self.wth_sum = 0
         self.dep_sum = 0
-        self.dep_tot = []
-        self.wth_tot = []
-        self.dep_count = len(self.dep_tot)
-        self.wth_count = len(self.wth_tot)
-        dep_mean = self.dep_sum / self.dep_count 
-        wth_mean = self.wth_sum / self.wth_count
+        self.dep_tot = 0
+        self.wth_tot = 0
+        self.dep_count = 0
+        self.wth_count = 0
+        self.dep_mean = 0
+        self.wth_mean = 0
+        self.dep_stdDev = 0
+        self.wth_stdDev = 0
+        # dep_mean = self.dep_sum / self.dep_count 
+        # wth_mean = self.wth_sum / self.wth_count
 
 
         # THE PROBLEM is every time we re-run the Consumer, ALL our customer
@@ -44,14 +48,18 @@ class XactionConsumer:
             if message['type'] == 'dep':
                 self.custBalances[message['custid']] += message['amt']
                 self.dep_sum += message['amt']
-                self.dep_tot.append(message)
-                dep_mean = self.dep_sum/len(self.dep_tot)
+                self.dep_tot += 1
+                self.dep_mean = self.dep_sum/self.dep_tot
+                self.dep_stdDev = message['amt'] - self.dep_mean
             else:
                 self.custBalances[message['custid']] -= message['amt']
                 self.wth_sum += message['amt']
-                self.wth_tot.append(message)
-                wth_mean = self.wth_sum/len(self.wth_tot)
-            print(self.custBalances, self.dep_sum, self.wth_sum, dep_mean, wth_mean)
+                self.wth_tot += 1
+                self.wth_mean = self.wth_sum/self.wth_tot
+                self.wth_stdDev = message['amt'] - self.wth_mean
+            print(f"{self.custBalances}, dep total: {self.dep_sum}, wth total: {self.wth_sum}")
+            print(f"dep avg: {self.dep_mean}, wth avg: {self.wth_mean}, withdrawal std dev: {round(self.wth_stdDev, 2)},"
+                  f" deposit std dev: {round(self.dep_stdDev, 2)}")
             # return message
             # for message in
 
