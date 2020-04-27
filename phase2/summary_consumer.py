@@ -14,8 +14,8 @@ class XactionConsumer:
         # custBalances is the one where the current blance of each customer
         # account is kept.
         self.custBalances = {}
-        self.amt = []
-        self.amt_total = sum(self.amt)
+        # self.amt = []
+        # self.amt_total = sum(self.amt)
         self.wth_sum = 0
         self.dep_sum = 0
         self.dep_tot = 0
